@@ -66,7 +66,8 @@ backend/    Servlet 接口、验证码图片和 JSON 校验逻辑
 - 程序内置 10 张验证码图片，每次随机调用其中一张。
 - 验证码由 4 位字母和数字组成，不区分大小写。
 - 验证码图片使用随机地址，地址中不包含验证码答案。
-- 验证码保存在 `HttpSession` 中，没有单独的过期时间。
+- 验证码保存在 `HttpSession` 中，签发时记录时间，有效期为 5 分钟；过期后再提交会提示
+  “验证码已过期，请刷新后重新输入”。
 - 每次提交登录信息后，验证码立即作废，页面会自动加载新的验证码。
 - 验证码正确但账号或密码错误时，返回“用户名或密码错误”。
 - 只有验证码、用户名和密码全部正确时，才返回登录成功。
@@ -76,8 +77,8 @@ backend/    Servlet 接口、验证码图片和 JSON 校验逻辑
 - `frontend/src/main/webapp/index.html`：登录页面结构。
 - `frontend/src/main/webapp/styles.css`：登录页面样式。
 - `frontend/src/main/webapp/app.js`：调用后端接口的原生 JavaScript。
-- `backend/src/main/java/com/example/captcha/CaptchaServlet.java`：返回随机内置验证码图片。
-- `backend/src/main/java/com/example/captcha/LoginServlet.java`：校验验证码和固定账号。
+- `backend/src/main/java/com/example/captcha/CaptchaServlet.java`：返回随机内置验证码图片，并在会话中记录签发时间。
+- `backend/src/main/java/com/example/captcha/LoginServlet.java`：校验验证码（含 5 分钟有效期）和固定账号。
 - `backend/src/main/webapp/WEB-INF/web.xml`：配置后端会话 Cookie。
 
 > 本项目用于本地学习和演示。密码以明文形式直接写在代码中，正式系统应使用数据库、

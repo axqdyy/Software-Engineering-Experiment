@@ -17,6 +17,7 @@ import java.security.SecureRandom;
 public class CaptchaServlet extends HttpServlet {
 
     public static final String SESSION_ATTRIBUTE = "loginCaptcha";
+    public static final long VALIDITY_MILLIS = 5 * 60 * 1000L;
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final CaptchaOption[] CAPTCHA_OPTIONS = {
             new CaptchaOption("A7K2", "/WEB-INF/captcha/01.png"),
@@ -35,7 +36,8 @@ public class CaptchaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         CaptchaOption option = CAPTCHA_OPTIONS[RANDOM.nextInt(CAPTCHA_OPTIONS.length)];
-        request.getSession(true).setAttribute(SESSION_ATTRIBUTE, option.code());
+        request.getSession(true)
+                .setAttribute(SESSION_ATTRIBUTE, new CaptchaChallenge(option.code(), System.currentTimeMillis()));
 
         response.setContentType("image/png");
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
@@ -53,5 +55,15 @@ public class CaptchaServlet extends HttpServlet {
     }
 
     private record CaptchaOption(String code, String imagePath) {
+    }
+
+    /**
+     * 会话中保存的验证码及其签发时间。
+     */
+    public record CaptchaChallenge(String code, long issuedAtMillis) {
+
+        public boolean isExpired(long nowMillis) {
+            return nowMillis - issuedAtMillis > VALIDITY_MILLIS;
+        }
     }
 }

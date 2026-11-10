@@ -32,7 +32,7 @@ public class LoginServlet extends HttpServlet {
         String username = valueOf(request.getParameter("username"));
         String password = valueOf(request.getParameter("password"));
         String captchaInput = valueOf(request.getParameter("captcha"));
-        String savedCaptcha = takeCaptcha(request);
+        CaptchaServlet.CaptchaChallenge savedCaptcha = takeCaptcha(request);
 
         if (username.isBlank() || password.isBlank()) {
             writeResult(response, false, "missing_credentials", "请输入用户名和密码。");
@@ -44,7 +44,12 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        if (captchaInput.isBlank() || !savedCaptcha.equalsIgnoreCase(captchaInput.trim())) {
+        if (savedCaptcha.isExpired(System.currentTimeMillis())) {
+            writeResult(response, false, "captcha_expired", "验证码已过期，请刷新后重新输入。");
+            return;
+        }
+
+        if (captchaInput.isBlank() || !savedCaptcha.code().equalsIgnoreCase(captchaInput.trim())) {
             writeResult(response, false, "captcha_error", "验证码错误，请重新输入。");
             return;
         }
@@ -69,7 +74,7 @@ public class LoginServlet extends HttpServlet {
         response.setHeader("Allow", "POST");
     }
 
-    private String takeCaptcha(HttpServletRequest request) {
+    private CaptchaServlet.CaptchaChallenge takeCaptcha(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             return null;
@@ -77,7 +82,7 @@ public class LoginServlet extends HttpServlet {
 
         Object value = session.getAttribute(CaptchaServlet.SESSION_ATTRIBUTE);
         session.removeAttribute(CaptchaServlet.SESSION_ATTRIBUTE);
-        return value instanceof String captcha ? captcha : null;
+        return value instanceof CaptchaServlet.CaptchaChallenge captcha ? captcha : null;
     }
 
     private String valueOf(String value) {
