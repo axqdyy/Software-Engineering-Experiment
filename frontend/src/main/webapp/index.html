@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录验证码系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+<main class="login-card">
+    <div class="brand" aria-hidden="true">验</div>
+    <h1>登录验证</h1>
+    <p class="subtitle">请输入账号、密码和图片验证码，系统将直接给出校验结果。</p>
+
+    <form id="login-form" action="#" method="post" novalidate>
+        <div class="field">
+            <label for="username">用户名</label>
+            <input id="username" name="username" type="text"
+                   autocomplete="username" placeholder="请输入用户名" autofocus>
+        </div>
+
+        <div class="field">
+            <label for="password">密码</label>
+            <input id="password" name="password" type="password"
+                   autocomplete="current-password" placeholder="请输入密码">
+        </div>
+
+        <div class="field">
+            <label for="captcha">验证码</label>
+            <div class="captcha-row">
+                <input id="captcha" name="captcha" type="text"
+                       autocomplete="off" maxlength="4" placeholder="4 位字符">
+                <img id="captcha-image" class="captcha-image"
+                     alt="图片验证码，点击刷新" title="点击刷新验证码"
+                     role="button" tabindex="0">
+            </div>
+            <p class="hint">不区分大小写，点击图片可刷新</p>
+        </div>
+
+        <button id="submit-button" type="submit">提交验证</button>
+    </form>
+
+    <div id="result" class="result" role="status" aria-live="polite"></div>
+</main>
+</body>
+</html>
